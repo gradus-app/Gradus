@@ -1,8 +1,11 @@
 // --- Supabase Client Initialization ---
-const SUPABASE_URL = 'https://ldzctuyvlsgehebnqwwk.supabase.co'; // <--- Твій Project URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkemN0dXl2bHNnZWhlYm5xd3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTA5NTAsImV4cCI6MjA2NDE4Njk1MH0.gfPOQl-1sHvgZ2eO7GRsQgcdYU7isXgjg2g-SbpWB0g'; // <--- Твій anon public key з API Keys
+const SUPABASE_URL = 'https://ldzctuyvlsgehebnqwwk.supabase.co'; // Твій Project URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkemN0dXl2bHNnZWhlYm5xd3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTA5NTAsImV4cCI6MjA2NDE4Njk1MH0.gfPOQl-1sHvgZ2eO7GRsQgcdYU7isXgjg2g-SbpWB0g'; // Твій anon public key з API Keys
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Правильна ініціалізація клієнта Supabase.
+// 'window.supabase' доступний завдяки CDN-посиланню в index.html.
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
 // --- DOM Elements ---
 const appContainer = document.getElementById('app-container');
@@ -24,13 +27,10 @@ function displayMessage(type, text) {
     setTimeout(() => messageDiv.remove(), 5000); // Повідомлення зникає через 5 секунд
 }
 
-function showLoader() {
-    appContainer.innerHTML = '<p>Завантаження...</p>';
-}
+// Функції showLoader/hideLoader видалено з коду для простоти,
+// оскільки їх повна реалізація вимагає додаткового HTML та CSS.
+// Якщо вам потрібен індикатор завантаження, реалізуйте його окремо.
 
-function hideLoader() {
-    // В ідеалі, це виклик видалить завантажувач після завантаження вмісту
-}
 
 // --- Navigation & UI Updates ---
 async function updateUI(session) {
@@ -56,7 +56,6 @@ async function updateUI(session) {
 // --- Authentication ---
 async function handleAuth(event, type) {
     event.preventDefault();
-    showLoader();
     const email = event.target.email.value;
     const password = event.target.password.value;
     let authResponse;
@@ -73,17 +72,15 @@ async function handleAuth(event, type) {
         displayMessage('error', `Помилка автентифікації: ${error.message}`);
     } else {
         if (type === 'signup') {
-            displayMessage('success', 'Реєстрація успішна! Перевірте свою пошту для підтвердження.');
+            displayMessage('success', 'Реєстрація успішна! Перевірте свою пошту для підтвердження (якщо налаштовано).');
         } else {
             displayMessage('success', 'Вхід успішний!');
             await updateUI(data.session);
         }
     }
-    hideLoader();
 }
 
 async function handleLogout() {
-    showLoader();
     const { error } = await supabase.auth.signOut();
     if (error) {
         displayMessage('error', `Помилка виходу: ${error.message}`);
@@ -91,13 +88,11 @@ async function handleLogout() {
         displayMessage('success', 'Ви вийшли з системи.');
         await updateUI(null); // Оновити UI для неавторизованого стану
     }
-    hideLoader();
 }
 
 // --- Profile Management ---
 async function fetchUserProfile() {
     if (!currentUser) return;
-    showLoader();
     const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -115,12 +110,10 @@ async function fetchUserProfile() {
         currentProfileData = null; // Профіль не знайдено, потрібно створити
         renderProfileForm(); // Показати форму для створення профілю
     }
-    hideLoader();
 }
 
 async function saveProfile(event) {
     event.preventDefault();
-    showLoader();
     const username = event.target.username.value;
     const age = parseInt(event.target.age.value);
     const favorite_drink = event.target.favorite_drink.value;
@@ -162,7 +155,6 @@ async function saveProfile(event) {
         displayMessage('success', 'Профіль успішно збережено!');
         await fetchUserProfile(); // Перезавантажити профіль для оновлення UI
     }
-    hideLoader();
 }
 
 // --- Swiping Logic ---
@@ -170,7 +162,6 @@ let swipeableProfiles = [];
 let currentSwipeIndex = 0;
 
 async function fetchSwipeableProfiles() {
-    showLoader();
     const { data: profiles, error } = await supabase
         .from('profiles')
         .select('*')
@@ -185,7 +176,6 @@ async function fetchSwipeableProfiles() {
         currentSwipeIndex = 0;
         renderSwipeCard(); // Відобразити перший профіль
     }
-    hideLoader();
 }
 
 async function handleSwipe(type) {
@@ -195,7 +185,6 @@ async function handleSwipe(type) {
     }
 
     const swipedProfile = swipeableProfiles[currentSwipeIndex];
-    showLoader(); // Показати завантажувач, поки "лайк" зберігається
 
     const { error } = await supabase
         .from('likes')
@@ -208,7 +197,7 @@ async function handleSwipe(type) {
     if (error) {
         displayMessage('error', `Помилка збереження свайпу: ${error.message}`);
     } else {
-        // Додаємо затримку, щоб користувач бачив завантаження, перш ніж картка зміниться
+        // Додаємо затримку, щоб користувач бачив, перш ніж картка зміниться
         setTimeout(() => {
             currentSwipeIndex++;
             if (currentSwipeIndex < swipeableProfiles.length) {
@@ -216,17 +205,13 @@ async function handleSwipe(type) {
             } else {
                 appContainer.innerHTML = '<p class="message info">Більше немає профілів для свайпу. Спробуйте пізніше!</p>';
             }
-            hideLoader(); // Сховати завантажувач після обробки свайпу
         }, 500); // Затримка 0.5 секунди
     }
-    // Якщо є помилка, hideLoader() вже було викликано у блоці if (error)
-    if (!error) hideLoader();
 }
 
 
 // --- Matches Logic ---
 async function fetchMatches() {
-    showLoader();
     // Отримати "лайки", де поточний користувач є отримувачем (to_user_id) і тип 'like'
     const { data: incomingLikes, error: incomingError } = await supabase
         .from('likes')
@@ -236,7 +221,6 @@ async function fetchMatches() {
 
     if (incomingError) {
         displayMessage('error', `Помилка завантаження вхідних лайків: ${incomingError.message}`);
-        hideLoader();
         return;
     }
 
@@ -251,7 +235,6 @@ async function fetchMatches() {
 
     if (outgoingError) {
         displayMessage('error', `Помилка завантаження вихідних лайків: ${outgoingError.message}`);
-        hideLoader();
         return;
     }
 
@@ -262,7 +245,6 @@ async function fetchMatches() {
 
     if (matchedUserIds.length === 0) {
         appContainer.innerHTML = '<p class="message info">У вас поки немає збігів. Продовжуйте свайпати!</p>';
-        hideLoader();
         return;
     }
 
@@ -277,7 +259,6 @@ async function fetchMatches() {
     } else {
         renderMatches(matchedProfiles);
     }
-    hideLoader();
 }
 
 // --- Chat Logic ---
@@ -285,7 +266,6 @@ let currentChatPartnerId = null;
 let currentChatPartnerUsername = '';
 
 async function fetchMessages(partnerId) {
-    showLoader();
     const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -298,7 +278,6 @@ async function fetchMessages(partnerId) {
     } else {
         renderChat(currentChatPartnerUsername, data);
     }
-    hideLoader();
 }
 
 async function sendMessage(event) {
@@ -517,4 +496,3 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 supabase.auth.onAuthStateChange((event, session) => {
     updateUI(session);
 });
-
