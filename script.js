@@ -1,6 +1,6 @@
 // --- Supabase Client Initialization ---
 const SUPABASE_URL = 'https://ldzctuyvlsgehebnqwwk.supabase.co'; // <--- Твій Project URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldWp4cmlwenpsdnhwcm1iYXZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4ODg4MTgsImV4cCI6MTczMjY0MDg1OH0.kE5E-example-key'; // <--- Твій anon public key з API Keys
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkemN0dXl2bHNnZWhlYm5xd3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTA5NTAsImV4cCI6MjA2NDE4Njk1MH0.gfPOQl-1sHvgZ2eO7GRsQgcdYU7isXgjg2g-SbpWB0g'; // <--- Твій anon public key з API Keys
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
